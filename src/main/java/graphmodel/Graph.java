@@ -59,9 +59,16 @@ public abstract class Graph {
 
     public abstract void addEdge(int vertex1, int vertex2);
     public abstract void addEdgeWithWeight(int vertex1, int vertex2, int weight);
+    public abstract void addEdgeWithCapacity(int vertex1, int vertex2, int capacity, int flow);
 
     public List<Edge> findShortestPath(int startingVertex, int destinationVertex) {
         DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(this);
         return dijkstraAlgorithm.findShortestPathTo(startingVertex, destinationVertex);
+    }
+
+    public List<Edge> getResidualEdgesFrom(int v) {
+        ArrayList<Edge> residualEdges = new ArrayList<>(adjList[v]);
+        residualEdges.removeIf(edge -> edge.getResidualCapacity() <= 0);
+        return residualEdges;
     }
 }

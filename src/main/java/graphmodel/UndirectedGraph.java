@@ -25,4 +25,14 @@ public class UndirectedGraph extends Graph {
             adjList[vertex2].add(edge2);
         }
     }
+
+    @Override
+    public void addEdgeWithCapacity(int vertex1, int vertex2, int capacity, int flow) {
+        if (vertex1 < verticesCount && vertex2 < verticesCount) {
+            Edge edge1 = new Edge(vertex1, vertex2, capacity, flow);
+            adjList[vertex1].add(edge1);
+            Edge edge2 = new Edge(vertex2, vertex1, capacity, flow);
+            adjList[vertex2].add(edge2);
+        }
+    }
 }

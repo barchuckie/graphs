@@ -22,6 +22,14 @@ public class DirectedGraph extends Graph {
         }
     }
 
+    @Override
+    public void addEdgeWithCapacity(int sourceVertex, int destinationVertex, int capacity, int flow) {
+        if (sourceVertex < verticesCount && destinationVertex < verticesCount) {
+            Edge edge = new Edge(sourceVertex, destinationVertex, capacity, flow);
+            adjList[sourceVertex].add(edge);
+        }
+    }
+
     public DirectedGraph reverse() {
         DirectedGraph graph = new DirectedGraph(verticesCount);
         for (int vertex = 0; vertex < verticesCount; vertex++) {
@@ -32,4 +40,11 @@ public class DirectedGraph extends Graph {
         return graph;
     }
 
+    public Edge getEdge(int sourceVertex, int destinationVertex) {
+        for (Edge edge : getEdgesFrom(sourceVertex)) {
+            if (edge.getDestinationVertex() == destinationVertex)
+                return edge;
+        }
+        return null;
+    }
 }
