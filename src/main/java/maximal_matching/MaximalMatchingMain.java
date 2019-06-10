@@ -7,11 +7,16 @@ public class MaximalMatchingMain {
             return;
         }
 
+        boolean isLP = false;
+
         if (args[0].equals("--size") && args[2].equals("--degree")) {
             try {
                 int size = Integer.parseInt(args[1]);
                 int degree = Integer.parseInt(args[3]);
-                MaximalMatchingController app = new MaximalMatchingController(size, degree);
+                if (args.length > 4 && args[4].equals("--glpk")) {
+                    isLP = true;
+                }
+                MaximalMatchingController app = new MaximalMatchingController(size, degree, isLP);
                 app.start();
             } catch (NumberFormatException e) {
                 printUsage();

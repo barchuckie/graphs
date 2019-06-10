@@ -3,19 +3,21 @@ package maximal_matching;
 import edmonds_karp.EdmondsKarpAlgorithm;
 import graphmodel.DirectedGraph;
 import graphmodel.Edge;
+import linear_problem_generator.MaxFlowLinearProblemGenerator;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class MaximalMatchingController {
     private int size;
     private int degree;
+    private boolean isLP;
     private DirectedGraph graph;
     private Random random;
 
-    MaximalMatchingController(int size, int degree) {
+    MaximalMatchingController(int size, int degree, boolean isLP) {
         this.size = size;
         this.degree = degree;
+        this.isLP = isLP;
         random = new Random();
     }
 
@@ -24,39 +26,39 @@ public class MaximalMatchingController {
 
         startTime = System.nanoTime();
         createBigraph();
-        printBigraph();
-        EdmondsKarpAlgorithm algorithm = new EdmondsKarpAlgorithm(graph, size);
+        elapsedTime = System.nanoTime() - startTime;
+        System.err.println("Total build time: " + elapsedTime / 1000000 + " ms");
+
+        if (isLP) {
+            MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph);
+            modelGenerator.generateModelFile();
+        }
+
+        startTime = System.nanoTime();
+        EdmondsKarpAlgorithm algorithm = new EdmondsKarpAlgorithm(graph);
         algorithm.maxFlow(0, graph.getVerticesCount() - 1);
         elapsedTime = System.nanoTime() - startTime;
 
         System.err.println("Total time: " + elapsedTime / 1000000 + " ms");
-        System.err.println("Paths: " + algorithm.getPathCounter());
+        System.err.println("Result: " + algorithm.getPathCounter());
     }
 
     private void createBigraph() {
         int setCount = (int) Math.pow(2, size);
         int verticesCount = 2*setCount + 2;
         graph = new DirectedGraph(verticesCount);
-        ArrayList<Integer> leftVertices = new ArrayList<>();
-        int randomIdx;
+        int randomVertex;
 
-        for (int i = 1; i <= setCount; i++) {
-            leftVertices.add(i);
-            graph.addEdgeWithCapacity(0, i, 1, 0);
-            graph.addEdgeWithCapacity(i, 0, 0, 0);
-            graph.addEdgeWithCapacity(verticesCount-1-i, verticesCount - 1, 1, 0);
-            graph.addEdgeWithCapacity(verticesCount - 1, verticesCount-1-i, 0, 0);
-        }
+        for (int v = 1; v <= setCount; v++) {
+            graph.addEdgeWithCapacity(0, v, 1, 0);
+            graph.addEdgeWithCapacity(v, 0, 0, 0);
+            graph.addEdgeWithCapacity(verticesCount-1-v, verticesCount - 1, 1, 0);
+            graph.addEdgeWithCapacity(verticesCount - 1, verticesCount-1-v, 0, 0);
 
-        int x = degree + 1; //edge to source is added
-        for (int v = setCount + 1; v <= 2*setCount; v++) {
             for (int i = 0; i < degree; i++) {
-                randomIdx = random.nextInt(leftVertices.size());
-                graph.addEdgeWithCapacity(leftVertices.get(randomIdx), v,1, 0);
-                graph.addEdgeWithCapacity(v,leftVertices.get(randomIdx), 0, 0);
-                if (graph.getEdgesFrom(leftVertices.get(randomIdx)).size() == x) {
-                    leftVertices.remove(randomIdx);
-                }
+                randomVertex = random.nextInt(setCount) + setCount + 1;
+                graph.addEdgeWithCapacity(v, randomVertex, 1, 0);
+                graph.addEdgeWithCapacity(randomVertex, v, 0, 0);
             }
         }
     }

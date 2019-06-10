@@ -5,20 +5,23 @@ import edmonds_karp.EdmondsKarpAlgorithm;
 import graphmodel.DirectedGraph;
 import graphmodel.Edge;
 import graphmodel.HyperCube;
+import linear_problem_generator.MaxFlowLinearProblemGenerator;
 
 public class MaxFlowController implements Controller {
-    private int size;
     private DirectedGraph graph;
 
-
-    MaxFlowController(int size) {
-        this.size = size;
+    MaxFlowController(int size, boolean isLP) {
         long startTime, elapsedTime;
 
         startTime = System.nanoTime();
         graph = new HyperCube(size);
         elapsedTime = System.nanoTime() - startTime;
-        System.err.println("Total time: " + elapsedTime / 1000000 + " ms");
+        System.err.println("Total build time: " + elapsedTime / 1000000 + " ms");
+
+        if (isLP) {
+            MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph);
+            modelGenerator.generateModelFile();
+        }
     }
 
     @Override
@@ -26,7 +29,7 @@ public class MaxFlowController implements Controller {
         long startTime, elapsedTime;
 
         startTime = System.nanoTime();
-        EdmondsKarpAlgorithm algorithm = new EdmondsKarpAlgorithm(graph, size);
+        EdmondsKarpAlgorithm algorithm = new EdmondsKarpAlgorithm(graph);
         algorithm.maxFlow(0, graph.getVerticesCount() - 1);
         elapsedTime = System.nanoTime() - startTime;
 

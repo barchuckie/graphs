@@ -7,10 +7,15 @@ public class MaxFlowMain {
             return;
         }
 
+        boolean isLP = false;
+
         if (args[0].equals("--size")) {
             try {
                 int size = Integer.parseInt(args[1]);
-                MaxFlowController app = new MaxFlowController(size);
+                if (args.length > 2 && args[2].equals("--glpk")) {
+                    isLP = true;
+                }
+                MaxFlowController app = new MaxFlowController(size, isLP);
                 app.start();
             } catch (NumberFormatException e) {
                 printUsage();
