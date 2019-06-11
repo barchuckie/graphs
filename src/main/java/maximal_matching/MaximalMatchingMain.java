@@ -32,6 +32,7 @@ public class MaximalMatchingMain {
                             degree = Integer.parseInt(args[i+1]);
                         } catch (NumberFormatException e) {
                             printUsage();
+                            return;
                         }
                     }
                     break;
@@ -40,7 +41,7 @@ public class MaximalMatchingMain {
                     isLP = true;
                     if (i < args.length-1) {
                         filename = args[i+1];
-                    } else printUsage();
+                    }
                     break;
 
                 default:
@@ -50,6 +51,7 @@ public class MaximalMatchingMain {
 
         if (size == 0 || degree == 0) {
             printUsage();
+            return;
         }
 
         if (isLP) {

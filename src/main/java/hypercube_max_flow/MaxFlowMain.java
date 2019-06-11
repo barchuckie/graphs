@@ -21,6 +21,7 @@ public class MaxFlowMain {
                             size = Integer.parseInt(args[i+1]);
                         } catch (NumberFormatException e) {
                             printUsage();
+                            return;
                         }
                     }
                     break;
@@ -29,7 +30,7 @@ public class MaxFlowMain {
                     isLP = true;
                     if (i < args.length-1) {
                         filename = args[i+1];
-                    } else printUsage();
+                    }
                     break;
 
                 default:
@@ -39,6 +40,7 @@ public class MaxFlowMain {
 
         if (size == 0) {
             printUsage();
+            return;
         }
 
         if (isLP) {
