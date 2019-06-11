@@ -8,23 +8,49 @@ public class MaxFlowMain {
         }
 
         boolean isLP = false;
+        String filename = "maxflowmodel.mod";
+        int size = 0;
+        MaxFlowController app;
 
-        if (args[0].equals("--size")) {
-            try {
-                int size = Integer.parseInt(args[1]);
-                if (args.length > 2 && args[2].equals("--glpk")) {
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            switch (arg) {
+                case "--size":
+                    if (i < args.length-1) {
+                        try {
+                            size = Integer.parseInt(args[i+1]);
+                        } catch (NumberFormatException e) {
+                            printUsage();
+                        }
+                    }
+                    break;
+
+                case "--glpk":
                     isLP = true;
-                }
-                MaxFlowController app = new MaxFlowController(size, isLP);
-                app.start();
-            } catch (NumberFormatException e) {
-                printUsage();
+                    if (i < args.length-1) {
+                        filename = args[i+1];
+                    } else printUsage();
+                    break;
+
+                default:
+                    break;
             }
         }
+
+        if (size == 0) {
+            printUsage();
+        }
+
+        if (isLP) {
+            app = new MaxFlowController(size, filename);
+        } else {
+            app = new MaxFlowController(size);
+        }
+        app.start();
     }
 
     private static void printUsage() {
         System.out.println("Usage:");
-        System.out.println("MaxFlowMain --size {1...16}");
+        System.out.println("MaxFlowMain --size {1...16} (--glpk filename)");
     }
 }

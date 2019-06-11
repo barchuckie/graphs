@@ -9,19 +9,28 @@ import linear_problem_generator.MaxFlowLinearProblemGenerator;
 
 public class MaxFlowController implements Controller {
     private DirectedGraph graph;
+    long time;
+    int paths;
+    int flow;
 
-    MaxFlowController(int size, boolean isLP) {
+    MaxFlowController(int size) {
+        generateHyperCube(size);
+    }
+
+    MaxFlowController(int size, String filename) {
+        generateHyperCube(size);
+
+        MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph, filename);
+        modelGenerator.generateModelFile();
+    }
+
+    private void generateHyperCube(int size) {
         long startTime, elapsedTime;
 
         startTime = System.nanoTime();
         graph = new HyperCube(size);
         elapsedTime = System.nanoTime() - startTime;
-        System.err.println("Total build time: " + elapsedTime / 1000000 + " ms");
-
-        if (isLP) {
-            MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph);
-            modelGenerator.generateModelFile();
-        }
+        System.err.println("Build time: " + elapsedTime / 1000000 + " ms");
     }
 
     @Override
@@ -33,10 +42,13 @@ public class MaxFlowController implements Controller {
         algorithm.maxFlow(0, graph.getVerticesCount() - 1);
         elapsedTime = System.nanoTime() - startTime;
 
+        paths = algorithm.getPathCounter();
+        time = elapsedTime;
+        flow = calculateSinkFlow();
+
         System.err.println("Total time: " + elapsedTime / 1000000 + " ms");
-        System.err.println("Init flow: " + calculateInitFlow());
-        System.err.println("Sink flow: " + calculateSinkFlow());
         System.err.println("Paths: " + algorithm.getPathCounter());
+        System.out.println("Flow: " + calculateSinkFlow());
     }
 
     private void printFlowArray() {

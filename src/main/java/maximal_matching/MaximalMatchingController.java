@@ -1,5 +1,6 @@
 package maximal_matching;
 
+import controller.Controller;
 import edmonds_karp.EdmondsKarpAlgorithm;
 import graphmodel.DirectedGraph;
 import graphmodel.Edge;
@@ -7,43 +8,52 @@ import linear_problem_generator.MaxFlowLinearProblemGenerator;
 
 import java.util.Random;
 
-public class MaximalMatchingController {
+public class MaximalMatchingController implements Controller {
     private int size;
     private int degree;
     private boolean isLP;
     private DirectedGraph graph;
     private Random random;
 
-    MaximalMatchingController(int size, int degree, boolean isLP) {
+    long time;
+    int match;
+
+    MaximalMatchingController(int size, int degree) {
         this.size = size;
         this.degree = degree;
-        this.isLP = isLP;
+        this.isLP = false;
         random = new Random();
+        createBigraph();
     }
 
-    void start() {
-        long startTime, elapsedTime;
-
-        startTime = System.nanoTime();
+    MaximalMatchingController(int size, int degree, String filename) {
+        this.size = size;
+        this.degree = degree;
+        this.isLP = true;
+        random = new Random();
         createBigraph();
-        elapsedTime = System.nanoTime() - startTime;
-        System.err.println("Total build time: " + elapsedTime / 1000000 + " ms");
 
-        if (isLP) {
-            MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph);
-            modelGenerator.generateModelFile();
-        }
+        MaxFlowLinearProblemGenerator modelGenerator = new MaxFlowLinearProblemGenerator(graph, filename);
+        modelGenerator.generateModelFile();
+    }
+
+    @Override
+    public void start() {
+        long startTime, elapsedTime;
 
         startTime = System.nanoTime();
         EdmondsKarpAlgorithm algorithm = new EdmondsKarpAlgorithm(graph);
         algorithm.maxFlow(0, graph.getVerticesCount() - 1);
         elapsedTime = System.nanoTime() - startTime;
-
+        time = elapsedTime;
+        match = algorithm.getPathCounter();
         System.err.println("Total time: " + elapsedTime / 1000000 + " ms");
-        System.err.println("Result: " + algorithm.getPathCounter());
+        System.out.println("Result: " + algorithm.getPathCounter());
     }
 
     private void createBigraph() {
+        long startTime, elapsedTime;
+        startTime = System.nanoTime();
         int setCount = (int) Math.pow(2, size);
         int verticesCount = 2*setCount + 2;
         graph = new DirectedGraph(verticesCount);
@@ -57,10 +67,21 @@ public class MaximalMatchingController {
 
             for (int i = 0; i < degree; i++) {
                 randomVertex = random.nextInt(setCount) + setCount + 1;
-                graph.addEdgeWithCapacity(v, randomVertex, 1, 0);
-                graph.addEdgeWithCapacity(randomVertex, v, 0, 0);
+                if (checkVerticesConnection(v, randomVertex)) {
+                    graph.addEdgeWithCapacity(v, randomVertex, 1, 0);
+                    graph.addEdgeWithCapacity(randomVertex, v, 0, 0);
+                } else i--;
             }
         }
+        elapsedTime = System.nanoTime() - startTime;
+        System.err.println("Build time: " + elapsedTime / 1000000 + " ms");
+    }
+
+    private boolean checkVerticesConnection(int source, int dest) {
+        for (Edge e : graph.getEdgesFrom(source)) {
+            if (e.getDestinationVertex() == dest) return false;
+        }
+        return true;
     }
 
     private void printBigraph() {
